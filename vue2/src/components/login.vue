@@ -1,8 +1,8 @@
 <template>
- <div>
+  <div>
     <div class="row">
       <div class="col-md-12 col-sm-12 col-xs-12 text-center" style="padding-top:10%">
-        <p class="login-title">登录</p>
+        <p class="login-title">入口</p>
       </div>
     </div>
     <Form ref="formInline" :model="formInline" :rules="ruleInline" inline>
@@ -34,7 +34,17 @@
   </div>
 </template>
 
+<style>
+.login-title{
+  font-family: '黑体 Bold', '黑体';
+  font-weight: 700;
+  font-style: normal;
+  font-size: 18px;
+  color: #7B7B7B;
+}
+</style>
 <script>
+import Auth from '../services/auth.js'
 
 export default {
   data () {
@@ -53,30 +63,29 @@ export default {
         }
     }  
   }, 
+  methods: {
+    handleSubmit(name) {
+      let obj = {
+        name: this.formInline.user,
+        password: this.formInline.password
+      }
+      if(this.formInline.user.length == 0 || this.formInline.password.length == 0){
+        this.$Message.error("用户名或密码不能为空")
+        return;
+      }
+      this.$http.post('/auth/index', obj)
+        .then((res) => {
+          console.log(res);
+          if(res.data.success){
+            Auth.login(res.data.msg);
+            this.$router.push({path:'/'})
+          }else{
+            this.$Message.error(res.data.msg); // 登录失败，显示提示语
+          }
+        }, (err) => {
+            this.$Message.error('请求错误！')
+        })
+    }
+  }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-.login-title{
-  font-family: '黑体 Bold', '黑体';
-  font-weight: 700;
-  font-style: normal;
-  font-size: 13px;
-  color: #7B7B7B;
-}
-</style>
